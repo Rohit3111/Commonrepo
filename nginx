@@ -1,0 +1,46 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "nginx"
+  namespace: "default"
+  labels:
+    app: "nginx"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "nginx"
+  template:
+    metadata:
+      labels:
+        app: "nginx"
+    spec:
+      containers:
+      - name: "docker-pull-nginx-1"
+        image: "docker pull nginx"
+        command:
+        - "docker pull nginx"
+
+---
+apiVersion: "autoscaling/v2"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "nginx-hpa-tddk"
+  namespace: "default"
+  labels:
+    app: "nginx"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "nginx"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      target:
+        type: "Utilization"
+        averageUtilization: 80
